@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Pods | Premium Vape Catalog & Admin</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Inter & Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            cyan: '#00f2fe',
+                            purple: '#9d4edd',
+                            neon: '#4facfe',
+                            dark: '#0a0a12',
+                            card: 'rgba(20, 20, 35, 0.75)',
+                            border: 'rgba(255, 255, 255, 0.12)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Global & Custom Scrollbar */
+        body {
+            background-color: #06060c;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a40;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2fe;
+        }
+
+        /* Glassmorphism Styles */
+        .glass-panel {
+            background: rgba(18, 18, 32, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-card {
+            background: rgba(25, 25, 45, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 242, 254, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -10px rgba(0, 242, 254, 0.25);
+        }
+
+        .neon-glow-text {
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+        }
+
+        .neon-glow-btn {
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            transition: all 0.3s ease;
+        }
+        .neon-glow-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+        }
+
+        /* Background Canvas Layer */
+        #smoke-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* Modal Blur */
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            background: rgba(4, 4, 10, 0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col justify-between">
+
+    <!-- CANVAS ANIMATED SMOKE BACKGROUND -->
+    <canvas id="smoke-canvas"></canvas>
+
+    <!-- WRAPPER CONTENT WITH HIGH Z-INDEX -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+
+        <!-- HEADER / NAVIGATION -->
+        <header class="sticky top-0 z-40 glass-panel border-b border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                
+                <!-- BRAND LOGO -->
+                <a href="#" onclick="switchTab('store')" class="flex items-center gap-3 group">
+                    <div class="relative w-11 h-11 rounded-xl bg-gradient-to-tr from-cyan-500 via-indigo-600 to-purple-600 p-[2px] shadow-lg group-hover:scale-105 transition-transform duration-300">
+                        <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                            <!-- PLACEHOLDER SVG LOGO (EASILY REPLACED BY USER) -->
+                            <svg id="app-logo-svg" class="w-6 h-6 text-cyan-400 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="font-display font-black text-xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-200 to-purple-400">
+                            ULTIMATE<span class="text-cyan-400">PODS</span>
+                        </span>
+                        <p class="text-[10px] text-gray-400 tracking-widest uppercase -mt-1 font-semibold">Premium Smoke Vapor</p>
+                    </div>
+                </a>
+
+                <!-- NAVIGATION / CONTROLS -->
+                <div class="flex items-center space-x-3 sm:space-x-5">
+                    <!-- Nav Tabs -->
+                    <button id="nav-store-btn" onclick="switchTab('store')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                        <i class="fa-solid fa-store"></i> <span class="hidden sm:inline">Loja</span>
+                    </button>
+                    <button id="nav-admin-btn" onclick="switchTab('admin')" class="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear"></i> <span class="hidden sm:inline">Painel Admin</span>
+                    </button>
+
+                    <!-- Cart Trigger Button -->
+                    <button onclick="toggleCart()" class="relative p-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-cyan-400/50 transition-all text-gray-200">
+                        <i class="fa-solid fa-cart-shopping text-lg text-cyan-400"></i>
+                        <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-lg border border-black hidden">
+                            0
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN VIEW AREA -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+            <!-- ================= STORE TAB ================= -->
+            <section id="tab-store" class="space-y-8">
+                
+                <!-- HERO BANNER -->
+                <div class="relative rounded-3xl overflow-hidden glass-panel border border-cyan-500/20 p-8 sm:p-12 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div class="space-y-4 max-w-xl z-10">
+                        <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-cyan-400 bg-cyan-950/60 rounded-full border border-cyan-500/30">
+                            <i class="fa-solid fa-bolt mr-1"></i> Nova Geração Vape
+                        </span>
+                        <h1 class="text-3xl sm:text-5xl font-display font-black tracking-tight text-white leading-tight">
+                            Sabor Intenso & <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 neon-glow-text">Fumaça Extrema</span>
+                        </h1>
+                        <p class="text-gray-300 text-sm sm:text-base leading-relaxed">
+                            Confira o catálogo oficial dos pods descartáveis, juices e acessórios mais renomados do mercado. Entrega rápida e produto 100% original.
+                        </p>
+                        <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-gray-400">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-cyan-400"></i> Produtos Originais</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck-fast text-cyan-400"></i> Envio Rápido</span>
+                            <span class="flex items-center gap-1.5"><i class="fa-brands fa-whatsapp text-green-400"></i> Atendimento Direct</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative z-10 w-full max-w-xs md:max-w-sm flex justify-center">
+                        <div class="relative w-48 h-48 sm:w-60 sm:h-60 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 p-4 border border-white/10 flex items-center justify-center animate-pulse">
+                            <i class="fa-solid fa-cloud-bolt text-7xl text-cyan-400 drop-shadow-[0_0_20px_rgba(0,242,254,0.6)]"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GITHUB REPOSITORY DYNAMIC LOAD BAR -->
+                <div class="glass-panel rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 border border-cyan-500/20">
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <div class="p-2 bg-cyan-500/10 rounded-lg text-cyan-400">
+                            <i class="fa-brands fa-github text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-gray-200">Sincronização com GitHub</h4>
+                            <p class="text-[11px] text-gray-400">Carregue dados via JSON remoto hospedado em seu repositório.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input type="text" id="github-url-input" placeholder="https://raw.githubusercontent.com/usuario/repo/main/catalog.json" 
+                               class="w-full md:w-96 px-3 py-2 bg-black/50 border border-white/10 rounded-xl text-xs text-gray-200 focus:outline-none focus:border-cyan-400 transition-all">
+                        <button onclick="fetchGitHubCatalog()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl text-xs font-semibold hover:opacity-90 transition-all whitespace-nowrap flex items-center gap-1.5 shadow-lg">
+                            <i class="fa-solid fa-sync"></i> Carregar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTROLS: SEARCH & CATEGORY FILTER -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <!-- Search Input -->
+                    <div class="relative w-full md:w-80">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                        <input type="text" id="search-input" oninput="renderStoreCatalog()" placeholder="Buscar pods, sabores ou marcas..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400 transition-all">
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div id="category-pills" class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 no-scrollbar">
+                        <!-- Populated dynamically via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- PRODUCT GRID -->
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Product Cards Inject Here -->
+                </div>
+
+                <!-- EMPTY STATE -->
+                <div id="empty-store" class="hidden text-center py-16 glass-panel rounded-3xl border border-white/10">
+                    <i class="fa-solid fa-box-open text-5xl text-gray-600 mb-4"></i>
+                    <h3 class="text-lg font-semibold text-gray-300">Nenhum produto encontrado</h3>
+                    <p class="text-sm text-gray-500 mt-1">Tente ajustar a busca ou o filtro de categoria selecionado.</p>
+                </div>
+            </section>
+
+            <!-- ================= ADMIN TAB / PAINEL ================= -->
+            <section id="tab-admin" class="hidden space-y-8">
+                
+                <!-- ADMIN TITLE & ACTION BAR -->
+                <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-purple-400 text-xs font-semibold uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-lock"></i> Áreas do Administrador
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-display font-bold text-white">Gerenciador de Produtos & JSON</h2>
+                        <p class="text-gray-400 text-xs sm:text-sm mt-1">Adicione produtos, edite dados, e baixe o arquivo atualizado para subir no GitHub.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="openProductModal()" class="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold transition-all flex items-center gap-2 shadow-lg shadow-purple-900/30">
+                            <i class="fa-solid fa-plus"></i> Novo Produto
+                        </button>
+                        <button onclick="exportJSONCatalog()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-download"></i> Baixar JSON GitHub
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ADMIN CATALOG TABLE -->
+                <div class="glass-panel rounded-3xl border border-white/10 overflow-hidden">
+                    <div class="p-5 border-b border-white/10 flex items-center justify-between">
+                        <h3 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-cyan-400"></i> Produtos Cadastrados (<span id="admin-product-count">0</span>)
+                        </h3>
+                        <button onclick="resetToDefaultData()" class="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Restaurar Padrão
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm text-gray-300">
+                            <thead class="bg-black/40 text-xs uppercase text-gray-400 border-b border-white/10">
+                                <tr>
+                                    <th class="px-6 py-3.5">Produto</th>
+                                    <th class="px-6 py-3.5">Categoria</th>
+                                    <th class="px-6 py-3.5">Puffs / Sabor</th>
+                                    <th class="px-6 py-3.5">Preço</th>
+                                    <th class="px-6 py-3.5">Status</th>
+                                    <th class="px-6 py-3.5 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-table-body" class="divide-y divide-white/5">
+                                <!-- Admin Rows Inject Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- JSON LIVE CODE PREVIEW -->
+                <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-code text-indigo-400"></i> Pré-visualização do JSON (Pronto para o GitHub)
+                        </h3>
+                        <button onclick="copyJSONToClipboard()" class="text-xs px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-cyan-300 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-copy"></i> Copiar JSON
+                        </button>
+                    </div>
+                    <textarea id="json-preview" readonly class="w-full h-64 p-4 bg-slate-950 font-mono text-xs text-emerald-400 rounded-xl border border-white/10 focus:outline-none resize-y"></textarea>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="glass-panel border-t border-white/10 mt-12 py-6">
+            <div class="max-w-7xl mx-auto px-4 text-center sm:flex sm:items-center sm:justify-between text-xs text-gray-500">
+                <p>&copy; 2026 Ultimate Pods. Todos os direitos reservados. Venda proibida para menores de 18 anos.</p>
+                <div class="mt-3 sm:mt-0 flex justify-center gap-4">
+                    <a href="#" onclick="switchTab('store')" class="hover:text-cyan-400 transition-colors">Catálogo</a>
+                    <a href="#" onclick="switchTab('admin')" class="hover:text-cyan-400 transition-colors">Painel Admin</a>
+                    <a href="https://github.com" target="_blank" class="hover:text-cyan-400 transition-colors"><i class="fa-brands fa-github"></i> GitHub Sync</a>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+    <!-- ================= MODALS & DRAWER ================= -->
+
+    <!-- SHOPPING CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+        <!-- Backdrop -->
+        <div onclick="toggleCart()" class="absolute inset-0 modal-backdrop"></div>
+        <!-- Drawer Content -->
+        <div id="cart-content" class="absolute top-0 right-0 h-full w-full max-w-md bg-slate-950 border-l border-white/10 p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 pointer-events-auto">
+            <div>
+                <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                    <h3 class="text-lg font-display font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-cyan-400"></i> Seu Carrinho
+                    </h3>
+                    <button onclick="toggleCart()" class="text-gray-400 hover:text-white text-lg">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Cart Items List -->
+                <div id="cart-items-container" class="my-6 space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                    <!-- Items injected here -->
+                </div>
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="border-t border-white/10 pt-4 space-y-4">
+                <div class="space-y-1.5 text-sm">
+                    <div class="flex justify-between text-gray-400">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-white text-base">
+                        <span>Total</span>
+                        <span id="cart-total" class="text-cyan-400">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-xs text-gray-400 font-medium">Número do WhatsApp para Pedido:</label>
+                    <input type="text" id="whatsapp-number" value="5511999999999" placeholder="Ex: 5511999999999" 
+                           class="w-full px-3 py-2 bg-black/60 border border-white/10 rounded-xl text-xs text-gray-200 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <button onclick="checkoutWhatsApp()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 text-white font-semibold rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Finalizar Pedido via WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRODUCT DETAIL / QUICK VIEW MODAL -->
+    <div id="quickview-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeQuickView()" class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative glass-panel rounded-3xl border border-white/10 p-6 sm:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto z-10 space-y-6">
+            <button onclick="closeQuickView()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="quickview-content">
+                <!-- Injected via JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN PRODUCT ADD/EDIT MODAL -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div onclick="closeProductModal()" class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative glass-panel rounded-3xl border border-white/10 p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto z-10">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="modal-title" class="text-xl font-display font-bold text-white mb-6">Adicionar Novo Pod</h3>
+            
+            <form id="product-form" onsubmit="saveProductForm(event)" class="space-y-4">
+                <input type="hidden" id="form-product-id">
+                
+                <div>
+                    <label class="block text-xs text-gray-300 font-medium mb-1">Nome do Pod/Produto</label>
+                    <input type="text" id="form-name" required placeholder="Ex: Elf Bar BC5000" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-300 font-medium mb-1">Categoria</label>
+                        <select id="form-category" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                            <option value="Pods Descartáveis">Pods Descartáveis</option>
+                            <option value="Pods Recarregáveis">Pods Recarregáveis</option>
+                            <option value="Juices Freebase">Juices Freebase</option>
+                            <option value="Juices NicSalt">Juices NicSalt</option>
+                            <option value="Coils e Acessórios">Coils e Acessórios</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-300 font-medium mb-1">Preço (R$)</label>
+                        <input type="number" step="0.01" id="form-price" required placeholder="89.90" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-300 font-medium mb-1">Puffs / Puxadas</label>
+                        <input type="text" id="form-puffs" placeholder="Ex: 5000 Puffs" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-300 font-medium mb-1">Sabor / Flavour</label>
+                        <input type="text" id="form-flavor" placeholder="Ex: Watermelon Ice" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-300 font-medium mb-1">URL da Imagem</label>
+                    <input type="url" id="form-image" required placeholder="https://exemplo.com/imagem.jpg" class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-300 font-medium mb-1">Descrição</label>
+                    <textarea id="form-description" rows="3" placeholder="Detalhes de essência, bateria, etc..." class="w-full px-3.5 py-2.5 bg-black/50 border border-white/10 rounded-xl text-sm text-gray-100 focus:outline-none focus:border-cyan-400"></textarea>
+                </div>
+
+                <div class="flex items-center gap-2 pt-2">
+                    <input type="checkbox" id="form-in-stock" checked class="w-4 h-4 rounded bg-black/50 border-white/10 text-cyan-500 focus:ring-0">
+                    <label for="form-in-stock" class="text-xs text-gray-300">Produto Em Estoque</label>
+                </div>
+
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" onclick="closeProductModal()" class="px-4 py-2.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-xl text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg">Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        /* -------------------------------------------------------------
+           1. INITIAL DEFAULT CATALOG DATA (Fallback or Local State)
+        ------------------------------------------------------------- */
+        const defaultProducts = [
+            {
+                id: "pod-1",
+                name: "Ignite V50 Disposable",
+                category: "Pods Descartáveis",
+                price: 110.00,
+                puffs: "5000 Puffs",
+                flavor: "Watermelon Ice",
+                image: "https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=600&q=80",
+                description: "Design moderno com carcaça de alumínio preto fosco, sabor refrescante de melancia gelada. 5000 puxadas duradouras.",
+                inStock: true
+            },
+            {
+                id: "pod-2",
+                name: "Elf Bar BC5000 Ultra",
+                category: "Pods Descartáveis",
+                price: 119.90,
+                puffs: "5000 Puffs",
+                flavor: "Blue Razz Ice",
+                image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=600&q=80",
+                description: "Tecnologia de bobina Mesh aprimorada para mais sabor e densidade de fumaça. Recarregável via porta Type-C.",
+                inStock: true
+            },
+            {
+                id: "pod-3",
+                name: "Oxva Xlim Pro Kit",
+                category: "Pods Recarregáveis",
+                price: 249.90,
+                puffs: "Recarregável",
+                flavor: "Personalizável",
+                image: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80",
+                description: "Sistema pod aberto premium com tela OLED, potência ajustável até 30W e bateria interna de 1000mAh.",
+                inStock: true
+            },
+            {
+                id: "pod-4",
+                name: "Juice Nasty Salt Slow Blow",
+                category: "Juices NicSalt",
+                price: 85.00,
+                puffs: "30ml - 35mg",
+                flavor: "Abacaxi com Soda Lemon",
+                image: "https://images.unsplash.com/photo-1546554137-f86b9593a222?auto=format&fit=crop&w=600&q=80",
+                description: "O consagrado sabor de abacaxi doce com toque efervescente de soda e baixa menta.",
+                inStock: true
+            },
+            {
+                id: "pod-5",
+                name: "Lost Mary OS5000",
+                category: "Pods Descartáveis",
+                price: 105.00,
+                puffs: "5000 Puffs",
+                flavor: "Spearmint",
+                image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80",
+                description: "Mentol puro ultra refrescante para quem busca um golpe de garganta limpo e marcante.",
+                inStock: false
+            },
+            {
+                id: "pod-6",
+                name: "Juice Magna Red Ice Freebase",
+                category: "Juices Freebase",
+                price: 75.00,
+                puffs: "60ml - 3mg",
+                flavor: "Morango Gelado",
+                image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80",
+                description: "Morango suculento recém-colhido com finalização Ice refrescante. Ideal para sub-ohm.",
+                inStock: true
+            }
+        ];
+
+        // State Management
+        let products = JSON.parse(localStorage.getItem('ultimate_pods_catalog')) || defaultProducts;
+        let cart = JSON.parse(localStorage.getItem('ultimate_pods_cart')) || [];
+        let selectedCategory = 'All';
+
+        /* -------------------------------------------------------------
+           2. ANIMATED SMOKE CANVAS BACKGROUND EFFECT
+        ------------------------------------------------------------- */
+        const canvas = document.getElementById('smoke-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const particleCount = 45;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class SmokeParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.radius = Math.random() * 120 + 80;
+                this.speedY = Math.random() * 0.6 + 0.2;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.opacity = Math.random() * 0.25 + 0.05;
+                this.colorHue = Math.random() > 0.5 ? 185 : 270; // Cyan vs Purple smoke tints
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+                this.opacity -= 0.0003;
+
+                if (this.y < -this.radius || this.opacity <= 0) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, `hsla(${this.colorHue}, 100%, 60%, ${this.opacity})`);
+                gradient.addColorStop(0.5, `hsla(${this.colorHue}, 80%, 30%, ${this.opacity * 0.5})`);
+                gradient.addColorStop(1, 'rgba(6, 6, 12, 0)');
+
+                ctx.fillStyle = gradient;
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new SmokeParticle());
+        }
+
+        function animateSmoke() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateSmoke);
+        }
+
+        /* -------------------------------------------------------------
+           3. STORE & CATALOG RENDERING
+        ------------------------------------------------------------- */
+        function saveProductsState() {
+            localStorage.setItem('ultimate_pods_catalog', JSON.stringify(products));
+            updateJSONPreview();
+        }
+
+        function renderCategories() {
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            const container = document.getElementById('category-pills');
+            
+            container.innerHTML = categories.map(cat => {
+                const isActive = selectedCategory === cat;
+                return `
+                    <button onclick="filterCategory('${cat}')" 
+                            class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                                isActive 
+                                ? 'bg-gradient-to-r from-cyan-500 to-indigo-600 text-white shadow-lg shadow-cyan-500/20' 
+                                : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10'
+                            }">
+                        ${cat === 'All' ? 'Todos os Produtos' : cat}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function filterCategory(cat) {
+            selectedCategory = cat;
+            renderCategories();
+            renderStoreCatalog();
+        }
+
+        function renderStoreCatalog() {
+            const grid = document.getElementById('product-grid');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const emptyState = document.getElementById('empty-store');
+
+            const filtered = products.filter(p => {
+                const matchesCat = selectedCategory === 'All' || p.category === selectedCategory;
+                const matchesSearch = p.name.toLowerCase().includes(searchVal) || 
+                                      p.flavor.toLowerCase().includes(searchVal) || 
+                                      p.category.toLowerCase().includes(searchVal);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(p => `
+                <div class="glass-card rounded-2xl overflow-hidden flex flex-col justify-between group">
+                    <div class="relative overflow-hidden h-48 bg-black/40">
+                        <img src="${p.image}" alt="${p.name}" 
+                             onerror="this.src='https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=600&q=80'"
+                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute top-3 left-3">
+                            <span class="px-2.5 py-1 bg-black/70 backdrop-blur-md rounded-lg text-[10px] font-bold text-cyan-300 border border-white/10">
+                                ${p.category}
+                            </span>
+                        </div>
+                        ${!p.inStock ? `
+                            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center">
+                                <span class="px-3 py-1 bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-bold rounded-lg uppercase tracking-wider">Esgotado</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-gray-400 mb-1">
+                                <span><i class="fa-solid fa-wind text-cyan-400 mr-1"></i>${p.puffs}</span>
+                                <span><i class="fa-solid fa-lemon text-purple-400 mr-1"></i>${p.flavor}</span>
+                            </div>
+                            <h3 class="font-bold text-white text-base group-hover:text-cyan-300 transition-colors line-clamp-1">${p.name}</h3>
+                            <p class="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">${p.description}</p>
+                        </div>
+
+                        <div class="pt-2 border-t border-white/5 flex items-center justify-between">
+                            <div>
+                                <span class="text-[10px] text-gray-400 block uppercase">Preço</span>
+                                <span class="text-lg font-display font-extrabold text-cyan-400">R$ ${p.price.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openQuickView('${p.id}')" class="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-300 transition-colors" title="Ver Detalhes">
+                                    <i class="fa-solid fa-eye text-sm"></i>
+                                </button>
+                                <button onclick="addToCart('${p.id}')" ${!p.inStock ? 'disabled' : ''} 
+                                        class="px-3.5 py-2.5 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5">
+                                    <i class="fa-solid fa-cart-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /* -------------------------------------------------------------
+           4. SHOPPING CART LOGIC & WHATSAPP CHECKOUT
+        ------------------------------------------------------------- */
+        function toggleCart() {
+            const drawer = document.getElementById('cart-drawer');
+            const content = document.getElementById('cart-content');
+            if (drawer.classList.contains('pointer-events-none')) {
+                drawer.classList.remove('pointer-events-none', 'opacity-0');
+                content.classList.remove('translate-x-full');
+            } else {
+                drawer.classList.add('pointer-events-none', 'opacity-0');
+                content.classList.add('translate-x-full');
+            }
+        }
+
+        function addToCart(productId) {
+            const item = products.find(p => p.id === productId);
+            if (!item || !item.inStock) return;
+
+            const existing = cart.find(c => c.id === productId);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...item, quantity: 1 });
+            }
+
+            saveCartState();
+            showToast(`"${item.name}" adicionado ao carrinho!`, 'success');
+        }
+
+        function updateCartQuantity(productId, delta) {
+            const index = cart.findIndex(c => c.id === productId);
+            if (index !== -1) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            saveCartState();
+        }
+
+        function saveCartState() {
+            localStorage.setItem('ultimate_pods_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            const badge = document.getElementById('cart-badge');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const totalEl = document.getElementById('cart-total');
+
+            const totalItems = cart.reduce((acc, curr) => acc + curr.quantity, 0);
+            badge.innerText = totalItems;
+            if (totalItems > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-3"></i>
+                        <p class="text-sm">Seu carrinho está vazio.</p>
+                    </div>
+                `;
+                subtotalEl.innerText = 'R$ 0,00';
+                totalEl.innerText = 'R$ 0,00';
+                return;
+            }
+
+            const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between gap-3 p-3 glass-panel rounded-xl border border-white/5">
+                    <img src="${item.image}" alt="${item.name}" class="w-12 h-12 rounded-lg object-cover bg-black/50">
+                    <div class="flex-grow min-w-0">
+                        <h4 class="text-xs font-bold text-white truncate">${item.name}</h4>
+                        <p class="text-[11px] text-cyan-400">R$ ${item.price.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-black/40 rounded-lg p-1 border border-white/10">
+                        <button onclick="updateCartQuantity('${item.id}', -1)" class="w-5 h-5 text-gray-400 hover:text-white flex items-center justify-center text-xs">-</button>
+                        <span class="text-xs font-bold text-white px-1">${item.quantity}</span>
+                        <button onclick="updateCartQuantity('${item.id}', 1)" class="w-5 h-5 text-gray-400 hover:text-white flex items-center justify-center text-xs">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            subtotalEl.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            totalEl.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+
+        function checkoutWhatsApp() {
+            if (cart.length === 0) {
+                showToast('Seu carrinho está vazio!', 'error');
+                return;
+            }
+
+            const phone = document.getElementById('whatsapp-number').value.replace(/\D/g, '');
+            if (!phone) {
+                showToast('Digite um número de WhatsApp válido.', 'error');
+                return;
+            }
+
+            let msg = `🔥 *NOVO PEDIDO - ULTIMATE PODS* 🔥\n\n`;
+            let total = 0;
+
+            cart.forEach((item, idx) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                msg += `${idx + 1}. *${item.name}*\n`;
+                msg += `   └ Sabor/Puffs: ${item.flavor} (${item.puffs})\n`;
+                msg += `   └ Quantidade: ${item.quantity}x - R$ ${itemTotal.toFixed(2)}\n\n`;
+            });
+
+            msg += `💰 *TOTAL DO PEDIDO:* R$ ${total.toFixed(2)}\n\n`;
+            msg += `Aguardando confirmação de pagamento e frete.`;
+
+            const encoded = encodeURIComponent(msg);
+            window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
+        }
+
+        /* -------------------------------------------------------------
+           5. QUICK VIEW MODAL
+        ------------------------------------------------------------- */
+        function openQuickView(productId) {
+            const p = products.find(x => x.id === productId);
+            if (!p) return;
+
+            const modal = document.getElementById('quickview-modal');
+            const container = document.getElementById('quickview-content');
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="rounded-2xl overflow-hidden bg-black/50 h-64 border border-white/10">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="space-y-4">
+                        <span class="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg text-xs font-bold uppercase">${p.category}</span>
+                        <h2 class="text-2xl font-bold text-white">${p.name}</h2>
+                        <div class="flex items-center gap-4 text-xs text-gray-300">
+                            <span><i class="fa-solid fa-wind text-cyan-400 mr-1"></i> ${p.puffs}</span>
+                            <span><i class="fa-solid fa-lemon text-purple-400 mr-1"></i> ${p.flavor}</span>
+                        </div>
+                        <p class="text-xs text-gray-400 leading-relaxed">${p.description}</p>
+                        <div class="text-2xl font-display font-extrabold text-cyan-400">
+                            R$ ${p.price.toFixed(2).replace('.', ',')}
+                        </div>
+                        <button onclick="addToCart('${p.id}'); closeQuickView();" ${!p.inStock ? 'disabled' : ''} 
+                                class="w-full py-3 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 disabled:opacity-40 text-white font-bold rounded-xl text-xs transition-all shadow-lg">
+                            ${p.inStock ? 'Adicionar ao Carrinho' : 'Fora de Estoque'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeQuickView() {
+            document.getElementById('quickview-modal').classList.add('hidden');
+        }
+
+        /* -------------------------------------------------------------
+           6. ADMIN TAB MANAGEMENT
+        ------------------------------------------------------------- */
+        function renderAdminTable() {
+            const tbody = document.getElementById('admin-table-body');
+            document.getElementById('admin-product-count').innerText = products.length;
+
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-white/5 transition-colors">
+                    <td class="px-6 py-4 flex items-center gap-3">
+                        <img src="${p.image}" alt="" class="w-9 h-9 rounded-lg object-cover bg-black/40 border border-white/10">
+                        <span class="font-bold text-white">${p.name}</span>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-gray-300">${p.category}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${p.puffs} / ${p.flavor}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-cyan-400">R$ ${p.price.toFixed(2).replace('.', ',')}</td>
+                    <td class="px-6 py-4">
+                        ${p.inStock 
+                            ? '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold rounded-full border border-emerald-500/30">Em Estoque</span>'
+                            : '<span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded-full border border-red-500/30">Esgotado</span>'
+                        }
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="openProductModal('${p.id}')" class="p-1.5 text-gray-400 hover:text-cyan-400 transition-colors">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteProduct('${p.id}')" class="p-1.5 text-gray-400 hover:text-red-400 transition-colors">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openProductModal(productId = null) {
+            const modal = document.getElementById('product-modal');
+            const title = document.getElementById('modal-title');
+            
+            if (productId) {
+                const p = products.find(x => x.id === productId);
+                if (!p) return;
+                title.innerText = 'Editar Pod / Produto';
+                document.getElementById('form-product-id').value = p.id;
+                document.getElementById('form-name').value = p.name;
+                document.getElementById('form-category').value = p.category;
+                document.getElementById('form-price').value = p.price;
+                document.getElementById('form-puffs').value = p.puffs;
+                document.getElementById('form-flavor').value = p.flavor;
+                document.getElementById('form-image').value = p.image;
+                document.getElementById('form-description').value = p.description;
+                document.getElementById('form-in-stock').checked = p.inStock;
+            } else {
+                title.innerText = 'Adicionar Novo Pod';
+                document.getElementById('product-form').reset();
+                document.getElementById('form-product-id').value = '';
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function saveProductForm(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-product-id').value || 'pod-' + Date.now();
+            const name = document.getElementById('form-name').value;
+            const category = document.getElementById('form-category').value;
+            const price = parseFloat(document.getElementById('form-price').value) || 0;
+            const puffs = document.getElementById('form-puffs').value || 'N/A';
+            const flavor = document.getElementById('form-flavor').value || 'Padrão';
+            const image = document.getElementById('form-image').value;
+            const description = document.getElementById('form-description').value;
+            const inStock = document.getElementById('form-in-stock').checked;
+
+            const existingIndex = products.findIndex(p => p.id === id);
+            const newProduct = { id, name, category, price, puffs, flavor, image, description, inStock };
+
+            if (existingIndex !== -1) {
+                products[existingIndex] = newProduct;
+                showToast('Produto atualizado com sucesso!', 'success');
+            } else {
+                products.push(newProduct);
+                showToast('Novo produto cadastrado!', 'success');
+            }
+
+            saveProductsState();
+            renderStoreCatalog();
+            renderCategories();
+            renderAdminTable();
+            closeProductModal();
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Tem certeza que deseja excluir este produto do catálogo?')) {
+                products = products.filter(p => p.id !== productId);
+                saveProductsState();
+                renderStoreCatalog();
+                renderCategories();
+                renderAdminTable();
+                showToast('Produto removido com sucesso.', 'info');
+            }
+        }
+
+        function updateJSONPreview() {
+            document.getElementById('json-preview').value = JSON.stringify(products, null, 2);
+        }
+
+        function copyJSONToClipboard() {
+            const textarea = document.getElementById('json-preview');
+            textarea.select();
+            document.execCommand('copy');
+            showToast('JSON copiado para a área de transferência!', 'success');
+        }
+
+        function exportJSONCatalog() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(products, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "ultimate_pods_catalog.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast('Arquivo ultimate_pods_catalog.json baixado!', 'success');
+        }
+
+        function resetToDefaultData() {
+            if (confirm('Restaurar o catálogo para o estado original demonstrativo?')) {
+                products = [...defaultProducts];
+                saveProductsState();
+                renderStoreCatalog();
+                renderCategories();
+                renderAdminTable();
+                showToast('Catálogo restaurado para o padrão!', 'info');
+            }
+        }
+
+        /* -------------------------------------------------------------
+           7. GITHUB FETCH INTEGRATION
+        ------------------------------------------------------------- */
+        async function fetchGitHubCatalog() {
+            const url = document.getElementById('github-url-input').value.trim();
+            if (!url) {
+                showToast('Insira uma URL válida do GitHub raw JSON.', 'error');
+                return;
+            }
+
+            try {
+                showToast('Conectando ao GitHub...', 'info');
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Não foi possível carregar o arquivo JSON.');
+                
+                const data = await response.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    products = data;
+                    saveProductsState();
+                    renderStoreCatalog();
+                    renderCategories();
+                    renderAdminTable();
+                    showToast('Catálogo sincronizado com o GitHub com sucesso!', 'success');
+                } else {
+                    throw new Error('O formato do JSON precisa ser um Array de produtos.');
+                }
+            } catch (err) {
+                showToast(`Erro ao carregar do GitHub: ${err.message}`, 'error');
+            }
+        }
+
+        /* -------------------------------------------------------------
+           8. NAVIGATION & TABS
+        ------------------------------------------------------------- */
+        function switchTab(tab) {
+            const storeTab = document.getElementById('tab-store');
+            const adminTab = document.getElementById('tab-admin');
+            const btnStore = document.getElementById('nav-store-btn');
+            const btnAdmin = document.getElementById('nav-admin-btn');
+
+            if (tab === 'store') {
+                storeTab.classList.remove('hidden');
+                adminTab.classList.add('hidden');
+                btnStore.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 bg-cyan-500/10 text-cyan-300 border border-cyan-500/30";
+                btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex items-center gap-2";
+            } else {
+                storeTab.classList.add('hidden');
+                adminTab.classList.remove('hidden');
+                btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 bg-purple-500/10 text-purple-300 border border-purple-500/30";
+                btnStore.className = "px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 flex items-center gap-2";
+            }
+        }
+
+        /* -------------------------------------------------------------
+           9. UI TOAST SYSTEM
+        ------------------------------------------------------------- */
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bg = 'bg-slate-900 border-cyan-500/40 text-cyan-300';
+            let icon = 'fa-circle-info';
+
+            if (type === 'success') {
+                bg = 'bg-slate-900 border-emerald-500/40 text-emerald-300';
+                icon = 'fa-circle-check';
+            } else if (type === 'error') {
+                bg = 'bg-slate-900 border-red-500/40 text-red-300';
+                icon = 'fa-triangle-exclamation';
+            }
+
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border ${bg} shadow-2xl backdrop-blur-md flex items-center gap-3 text-xs font-semibold transform transition-all duration-300 translate-y-4 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-4', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        /* -------------------------------------------------------------
+           10. APP INITIALIZATION
+        ------------------------------------------------------------- */
+        window.onload = function () {
+            animateSmoke();
+            renderCategories();
+            renderStoreCatalog();
+            renderCart();
+            renderAdminTable();
+            updateJSONPreview();
+        };
+    </script>
+</body>
+</html>
